@@ -62,9 +62,9 @@ $ bash toolset/requirements_debian.sh
 
 ### 1. Clone the repository
 
-$ git clone https://github.com/differentfun/differentfun_toolbox.git 
+$ `git clone https://github.com/differentfun/differentfun_toolbox.git `
 
-$ cd differentfun_toolbox
+$ `cd differentfun_toolbox`
 
 ### 2. Run the launcher
-$ bash main.sh
+$ `bash main.sh`
