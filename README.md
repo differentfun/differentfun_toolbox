@@ -68,3 +68,8 @@ $ `cd differentfun_toolbox`
 
 ### 2. Run the launcher
 $ `bash main.sh`
+
+### 3. Optional
+You can create a symlink in the user menu launching
+
+$ `bash install_toolbox_menu_entry.sh`
