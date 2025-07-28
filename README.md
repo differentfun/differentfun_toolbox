@@ -15,6 +15,7 @@ Supports audio/video/image conversion, ISO creation/extraction, and more — all
 - **Frames → Video** builder
 - **Create ISO** from folder
 - **Extract ISO** to folder
+- **Crypt and Decrypt Files** using gpg
 
 ---
 
