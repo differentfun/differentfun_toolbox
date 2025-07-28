@@ -2,7 +2,7 @@
 
 # Check for zenity
 if ! command -v zenity >/dev/null 2>&1; then
-  echo "Zenity is not installed. Please install it with: sudo apt install zenity"
+  echo "Zenity is not installed. Please install it with: sudo apt install zenity gnupg"
   exit 1
 fi
 
