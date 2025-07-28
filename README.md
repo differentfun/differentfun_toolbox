@@ -16,6 +16,8 @@ Supports audio/video/image conversion, ISO creation/extraction, and more — all
 - **Create ISO** from folder
 - **Extract ISO** to folder
 - **Crypt and Decrypt Files** using gpg
+- **Create a Splitted Archive** using zip
+- **Rejoin and decompress a Splitted Archive** using zip
 
 ---
 
