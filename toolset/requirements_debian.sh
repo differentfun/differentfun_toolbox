@@ -2,7 +2,7 @@
 
 # Check for zenity
 if ! command -v zenity >/dev/null 2>&1; then
-  echo "Zenity is not installed. Please install it with: sudo apt install zenity gnupg"
+  echo "Zenity is not installed. Please install it with: sudo apt install zenity"
   exit 1
 fi
 
@@ -13,7 +13,7 @@ cat << 'EOF' > "$INSTALL_SCRIPT"
 #!/bin/bash
 
 apt update -y
-apt install -y ffmpeg pngquant p7zip-full genisoimage
+apt install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gnupg
 EOF
 
 chmod +x "$INSTALL_SCRIPT"

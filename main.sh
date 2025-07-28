@@ -57,7 +57,9 @@ while true; do
     "Frames To Video" \
     "Create ISO From Folder" \
     "Unpack ISO To Folder" \
-    "Crypt and Decrypt Files")
+    "Crypt and Decrypt Files" \
+    "Create a splitted archive" \
+    "Recombine a splitted archive")
 
   if [[ -z "$selection" ]]; then
     break
@@ -73,6 +75,8 @@ while true; do
     "Create ISO From Folder") script="$TOOLSET_DIR/create_iso.sh" ;;
     "Unpack ISO To Folder") script="$TOOLSET_DIR/extract_iso.sh" ;;
     "Crypt and Decrypt Files") script="$TOOLSET_DIR/gpg_tool.sh" ;;
+    "Create a splitted archive") script="$TOOLSET_DIR/zip_splitter.sh" ;;
+    "Recombine a splitted archive") script="$TOOLSET_DIR/zip_recombine.sh" ;;
     *) zenity --error --text="Invalid selection." ; continue ;;
   esac
 
