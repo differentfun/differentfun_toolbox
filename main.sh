@@ -35,8 +35,8 @@ fi
 # --- MAIN MENU LOOP ---
 while true; do
   category=$(zenity --list \
-    --title="Toolbox Categories" \
-    --width=400 --height=300 \
+    --title="DifferentFun Multimedia Toolbox (Zenity GUI)" \
+    --width=500 --height=300 \
     --column="Category" \
     "Audio / Video / Images" \
     "ISO Tools" \
