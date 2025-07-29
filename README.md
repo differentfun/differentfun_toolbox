@@ -18,6 +18,7 @@ Supports audio/video/image conversion, ISO creation/extraction, and more — all
 - **Crypt and Decrypt Files** using gpg
 - **Create a Splitted Archive** using zip
 - **Rejoin and decompress a Splitted Archive** using zip
+- **GIT Tools** (Manage your repos) using git
 
 ---
 

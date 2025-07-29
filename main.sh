@@ -47,7 +47,7 @@ fi
 while true; do
   selection=$(zenity --list \
     --title="Toolset Launcher" \
-    --width=400 --height=400 \
+    --width=400 --height=450 \
     --column="Tool" \
     "PNG Compressor" \
     "Audio Converter" \
@@ -59,7 +59,8 @@ while true; do
     "Unpack ISO To Folder" \
     "Crypt and Decrypt Files" \
     "Create a splitted archive" \
-    "Recombine a splitted archive")
+    "Recombine a splitted archive" \
+    "GIT Tools")
 
   if [[ -z "$selection" ]]; then
     break
@@ -77,6 +78,7 @@ while true; do
     "Crypt and Decrypt Files") script="$TOOLSET_DIR/gpg_tool.sh" ;;
     "Create a splitted archive") script="$TOOLSET_DIR/zip_splitter.sh" ;;
     "Recombine a splitted archive") script="$TOOLSET_DIR/zip_recombine.sh" ;;
+    "GIT Tools") script="$TOOLSET_DIR/git_tools.sh" ;;
     *) zenity --error --text="Invalid selection." ; continue ;;
   esac
 
