@@ -18,19 +18,25 @@ zenity --question \
 if [[ $? -eq 0 ]]; then
   req_selection=$(zenity --list \
     --title="Select Your Distribution" \
-    --width=400 --height=200 \
+    --width=400 --height=250 \
     --column="Installer" \
-    "Install Requirements for Debian")
-
-  [[ -z "$req_selection" ]] && exit 0
+    "Install Requirements for Debian" \
+    "Install Requirements for Fedora" \
+    "Install Requirements for Arch" \
+    "Install Requirements for openSUSE")
 
   case "$req_selection" in
     "Install Requirements for Debian") script="$TOOLSET_DIR/requirements_debian.sh" ;;
+    "Install Requirements for Fedora") script="$TOOLSET_DIR/requirements_fedora.sh" ;;
+    "Install Requirements for Arch") script="$TOOLSET_DIR/requirements_arch.sh" ;;
+    "Install Requirements for openSUSE") script="$TOOLSET_DIR/requirements_opensuse.sh" ;;
     *) zenity --error --text="Invalid selection." ; exit 1 ;;
   esac
 
-  [[ -x "$script" ]] && "$script" || zenity --error --text="Installer script not found or not executable:\n$script"
+  [[ -x "$script" ]] && "$script" || \
+    zenity --error --text="Installer script not found or not executable:\n$script"
 fi
+
 
 # --- MAIN MENU LOOP ---
 while true; do

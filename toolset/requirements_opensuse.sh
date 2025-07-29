@@ -5,23 +5,22 @@ zenity --info \
   --title="Running Installer in Terminal" \
   --text="📢 This installer will run in the terminal.\n\nPlease check the terminal output for progress and possible errors."
 
-echo -e "\n=== [ DifferentFun Toolbox Requirements Installer - Debian ] ==="
+echo -e "\n=== [ DifferentFun Toolbox Requirements Installer - openSUSE ] ==="
 
-# Check for zenity itself
+# Check for zenity
 if ! command -v zenity >/dev/null 2>&1; then
-  echo "❌ Zenity is not installed. Install it with: sudo apt install zenity"
+  echo "❌ Zenity is not installed. Install it with: sudo zypper install zenity"
   exit 1
 fi
 
-# Ask for sudo once
+# Ask for sudo
 echo -e "\n🔐 Asking for sudo access..."
 sudo true || exit 1
 
-# Update package list
-echo -e "\n🔄 Updating package list..."
-sudo apt update -y
+# Update and install
+echo -e "\n🔄 Refreshing repositories..."
+sudo zypper refresh
 
-# Install required packages
 echo -e "\n📦 Installing packages:"
 echo "    - ffmpeg"
 echo "    - pngquant"
@@ -32,12 +31,12 @@ echo "    - coreutils"
 echo "    - gnupg"
 echo ""
 
-sudo apt install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gnupg 
+sudo zypper install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gpg2 
 
-# Verify installation
+# Verify
 echo -e "\n🔎 Verifying installed tools..."
 MISSING=""
-for cmd in ffmpeg pngquant 7z mkisofs; do
+for cmd in ffmpeg pngquant 7z genisoimage; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
     MISSING+="$cmd "
   fi
