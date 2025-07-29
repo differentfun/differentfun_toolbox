@@ -15,6 +15,7 @@ Supports audio/video/image conversion, ISO creation/extraction, and more — all
 - **Video Converter** (with optional HW acceleration)
 - **Video → Frames** extractor
 - **Frames → Video** builder
+- **Reverse Image Search** on the web
 
 ### 💽 ISO Tools
 
