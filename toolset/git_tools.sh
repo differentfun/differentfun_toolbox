@@ -187,6 +187,11 @@ clean_git_info() {
     fi
 }
 
+enable_credential_save() {
+    git config --global credential.helper store
+    zenity --info --title="git_tools – by DifferentFun" \
+        --text="Git is now configured to save credentials permanently." --width=350
+}
 
 # Main menu loop
 while true; do
@@ -201,6 +206,7 @@ while true; do
 		"Push to Remote" \
 		"Force Push to Remote" \
 		"Clean Git Information from Folder" \
+		"Enable Permanent Credential Save" \
 		"Exit")
 
 
@@ -214,6 +220,7 @@ while true; do
         "Push to Remote") push_repo ;;
         "Clean Git Information from Folder") clean_git_info ;;
         "Force Push to Remote") force_push_repo ;;
+        "Enable Permanent Credential Save") enable_credential_save ;;
         "Exit") break ;;
         *) break ;;
     esac
