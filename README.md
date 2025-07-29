@@ -90,12 +90,19 @@ The toolbox will prompt to install:
 
 ### 1. Clone the repository
 
-$ `git clone https://github.com/differentfun/differentfun_toolbox.git `
+```bash
+git clone https://github.com/differentfun/differentfun_toolbox.git
+```
 
-$ `cd differentfun_toolbox`
+```bash
+cd differentfun_toolbox
+```
 
 ### 2. Run the launcher
-$ `bash main.sh`
+
+```bash
+bash main.sh
+```
 
 ### 3. Optional
 You can create a symlink in the user menu launching
