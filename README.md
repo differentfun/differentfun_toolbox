@@ -107,4 +107,6 @@ bash main.sh
 ### 3. Optional
 You can create a symlink in the user menu launching
 
-$ `bash install_toolbox_menu_entry.sh`
+```bash
+bash install_toolbox_menu_entry.sh
+```
