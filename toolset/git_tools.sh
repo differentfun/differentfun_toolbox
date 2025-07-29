@@ -193,6 +193,28 @@ enable_credential_save() {
         --text="Git is now configured to save credentials permanently." --width=350
 }
 
+fix_remote_url() {
+    DIR=$(zenity --file-selection --directory --title="Select Git repository to fix remote URL")
+    [ -z "$DIR" ] && return
+
+    cd "$DIR"
+
+    zenity --question --title="Fix Remote URL" \
+        --text="This will reset the remote 'origin' to use your GitHub username.\nContinue?"
+
+    if [ $? -eq 0 ]; then
+        USER=$(zenity --entry --title="GitHub Username" --text="Enter your GitHub username (e.g., differentfun):")
+        REPO=$(zenity --entry --title="Repository Name" --text="Enter your repository name (e.g., differentfun_toolbox):")
+        [ -z "$USER" ] || [ -z "$REPO" ] && zenity --error --text="Both fields are required!" && return
+
+        NEW_URL="https://$USER@github.com/$USER/$REPO.git"
+        git remote set-url origin "$NEW_URL"
+        echo "🔧 Remote 'origin' set to: $NEW_URL"
+        zenity --info --title="git_tools – by DifferentFun" --text="Remote URL updated to:\n$NEW_URL" --width=400
+    fi
+}
+
+
 # Main menu loop
 while true; do
 	CHOICE=$(zenity --list \
@@ -207,6 +229,7 @@ while true; do
 		"Force Push to Remote" \
 		"Clean Git Information from Folder" \
 		"Enable Permanent Credential Save" \
+		"Fix Remote URL with Token" \
 		"Exit")
 
 
@@ -221,6 +244,7 @@ while true; do
         "Clean Git Information from Folder") clean_git_info ;;
         "Force Push to Remote") force_push_repo ;;
         "Enable Permanent Credential Save") enable_credential_save ;;
+        "Fix Remote URL with Token") fix_remote_url ;;
         "Exit") break ;;
         *) break ;;
     esac
