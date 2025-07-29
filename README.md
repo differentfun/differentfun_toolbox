@@ -57,7 +57,7 @@ Supports audio/video/image conversion, ISO creation/extraction, and more — all
 - Arch Linux, Manjaro, EndeavourOS, Garuda Linux
 
 🟣 openSUSE-based:
-- OpenSUSE Leap, openSUSE Tumbleweed, GeckoLinux
+- openSUSE Leap, openSUSE Tumbleweed, GeckoLinux
 
 ---
 
