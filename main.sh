@@ -1,21 +1,32 @@
 #!/bin/bash
 
+# Check if Zenity is installed
+if ! command -v zenity >/dev/null; then
+  echo "Zenity is required but not installed. Please install it first."
+  exit 1
+fi
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLSET_DIR="$ROOT_DIR/toolset"
+REQ_DIR="$ROOT_DIR/requirements"
 
+# Check folders
 if [[ ! -d "$TOOLSET_DIR" ]]; then
   zenity --error --title="Toolset not found" --text="The folder 'toolset' was not found in:\n$ROOT_DIR"
   exit 1
 fi
 
+if [[ ! -d "$REQ_DIR" ]]; then
+  zenity --error --title="Requirements directory not found" --text="The folder 'requirements' was not found in:\n$ROOT_DIR"
+  exit 1
+fi
+
+# Make scripts executable
 chmod +x "$TOOLSET_DIR"/*.sh 2>/dev/null
+chmod +x "$REQ_DIR"/*.sh 2>/dev/null
 
-# Install requirements?
-zenity --question \
-  --title="Install Requirements?" \
-  --text="Do you want to install requirements before launching the toolbox?"
-
-if [[ $? -eq 0 ]]; then
+# Prompt to install requirements
+if zenity --question --title="Install Requirements?" --text="Do you want to install requirements before launching the toolbox?"; then
   req_selection=$(zenity --list \
     --title="Select Your Distribution" \
     --width=400 --height=250 \
@@ -25,18 +36,22 @@ if [[ $? -eq 0 ]]; then
     "Install Requirements for Arch" \
     "Install Requirements for openSUSE")
 
+  [[ -z "$req_selection" ]] && exit 0
+
   case "$req_selection" in
-    "Install Requirements for Debian") script="$TOOLSET_DIR/requirements_debian.sh" ;;
-    "Install Requirements for Fedora") script="$TOOLSET_DIR/requirements_fedora.sh" ;;
-    "Install Requirements for Arch") script="$TOOLSET_DIR/requirements_arch.sh" ;;
-    "Install Requirements for openSUSE") script="$TOOLSET_DIR/requirements_opensuse.sh" ;;
-    *) zenity --error --text="Invalid selection." ; exit 1 ;;
+    "Install Requirements for Debian") script="$REQ_DIR/requirements_debian.sh" ;;
+    "Install Requirements for Fedora") script="$REQ_DIR/requirements_fedora.sh" ;;
+    "Install Requirements for Arch") script="$REQ_DIR/requirements_arch.sh" ;;
+    "Install Requirements for openSUSE") script="$REQ_DIR/requirements_opensuse.sh" ;;
+    *) zenity --error --text="Invalid selection."; exit 1 ;;
   esac
 
-  [[ -x "$script" ]] && "$script" || \
+  if [[ -x "$script" ]]; then
+    "$script"
+  else
     zenity --error --text="Installer script not found or not executable:\n$script"
+  fi
 fi
-
 
 # --- MAIN MENU LOOP ---
 while true; do
@@ -49,11 +64,14 @@ while true; do
     "ZIP Tools" \
     "Crypt & Decrypt Utils" \
     "Git & Dev" \
-    "Look for Toolbox Updates" )  
+    "Look for Toolbox Updates")
 
   [[ -z "$category" ]] && break
 
-  case "$category" in    
+  script=""
+  tool=""
+
+  case "$category" in
     "Audio / Video / Images")
       tool=$(zenity --list \
         --title="$category" \
@@ -135,7 +153,6 @@ while true; do
           --text="The toolbox folder is not a Git repository.\nYou can clone it with:\n\n  git clone https://github.com/differentfun/differentfun_toolbox"
       fi
       ;;
-   
   esac
 
   # Execute selected script
@@ -145,5 +162,8 @@ while true; do
     zenity --error --text="Script not executable:\n$script"
   fi
 
-  unset script tool
+  # Ask to continue or exit
+  if ! zenity --question --title="Continue?" --text="Do you want to return to the toolbox menu?"; then
+    break
+  fi
 done

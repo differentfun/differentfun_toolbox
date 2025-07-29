@@ -70,7 +70,9 @@ You can also **share the toolbox freely** with others.
 However, you **cannot sell this toolbox**, nor **include it in commercial software, products, or services**.
 
 In short:  
+
 ✅ Use it and share it
+
 ❌ Don't sell it and don't bundle it in commercial apps
 
 Licensed under a custom "Non-Commercial Integration License".
@@ -83,11 +85,7 @@ Licensed under a custom "Non-Commercial Integration License".
 
 The toolbox will prompt to install:
 
-- zenity, ffmpeg, pngquant, p7zip (o p7zip-full), genisoimage (or cdrkit), zip, coreutils, gnupg (o gnupg2)
-
-Or run manually:
-
-$ bash toolset/requirements_debian.sh
+- zenity, ffmpeg, pngquant, p7zip (o p7zip-full), genisoimage (or cdrkit), zip, coreutils, gnupg (or gnupg2)
 
 ### 1. Clone the repository
 
