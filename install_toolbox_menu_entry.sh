@@ -3,7 +3,7 @@
 # Get the absolute path of this script
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAUNCHER="$ROOT_DIR/main.sh"
-DESKTOP_FILE="/usr/share/applications/toolbox-launcher.desktop"
+DESKTOP_FILE="/usr/share/applications/df-toolbox-launcher.desktop"
 ICON_PATH="$ROOT_DIR/toolbox/icon.png"
 
 # Check if launcher script exists
@@ -24,7 +24,7 @@ Name=DifferentFun Toolbox
 Comment=Launch the multimedia toolbox
 Exec=$LAUNCHER
 Icon=$ICON_PATH
-Terminal=false
+Terminal=true
 Type=Application
 Categories=Utility;AudioVideo;
 EOF
