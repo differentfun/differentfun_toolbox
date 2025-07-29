@@ -41,12 +41,13 @@ while true; do
     "Audio / Video / Images" \
     "ISO Tools" \
     "ZIP Tools" \
-    "Crypt & Decript Utils" \
-    "Git & Dev")
+    "Crypt & Decrypt Utils" \
+    "Git & Dev" \
+    "Look for Toolbox Updates" )  
 
   [[ -z "$category" ]] && break
 
-  case "$category" in
+  case "$category" in    
     "Audio / Video / Images")
       tool=$(zenity --list \
         --title="$category" \
@@ -94,13 +95,41 @@ while true; do
       esac
       ;;
 
-    "Crypt & Decript Utils")
+    "Crypt & Decrypt Utils")
       script="$TOOLSET_DIR/gpg_tool.sh"
       ;;
 
     "Git & Dev")
       script="$TOOLSET_DIR/git_tools.sh"
       ;;
+
+    "Look for Toolbox Updates")
+      if [[ -d "$ROOT_DIR/.git" ]]; then
+        cd "$ROOT_DIR" || exit 1
+        git remote update > /dev/null 2>&1
+        LOCAL=$(git rev-parse @)
+        REMOTE=$(git rev-parse @{u})
+        BASE=$(git merge-base @ @{u})
+
+        if [[ $LOCAL = $REMOTE ]]; then
+          zenity --info --title="Toolbox Update" --text="The toolbox is already up to date."
+        elif [[ $LOCAL = $BASE ]]; then
+          if git pull --ff-only; then
+            zenity --info --title="Toolbox Updated" --text="The toolbox has been updated."
+            chmod +x "$TOOLSET_DIR"/*.sh 2>/dev/null
+          else
+            zenity --error --title="Update Failed" --text="Failed to update toolbox."
+          fi
+        else
+          zenity --warning --title="Manual Update Needed" \
+            --text="Your local changes conflict with remote. Please update manually."
+        fi
+      else
+        zenity --error --title="Not a Git Repository" \
+          --text="The toolbox folder is not a Git repository.\nYou can clone it with:\n\n  git clone https://github.com/differentfun/differentfun_toolbox"
+      fi
+      ;;
+   
   esac
 
   # Execute selected script
