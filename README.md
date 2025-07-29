@@ -11,6 +11,7 @@ Supports audio/video/image conversion, ISO creation/extraction, and more — all
 
 - **PNG Compressor**
 - **Audio Converter** (mp3, ogg, flac, etc.)
+- **YaBridge Manager** (Only on Debian 12 \ MX Linux)
 - **Image Converter**
 - **Video Converter** (with optional HW acceleration)
 - **Video → Frames** extractor

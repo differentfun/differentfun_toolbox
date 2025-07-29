@@ -79,6 +79,7 @@ while true; do
         --column="Tool" \
         "PNG Compressor" \
         "Audio Converter" \
+        "YaBridge Manager" \
         "Image Converter" \
         "Video Converter" \
         "Video To Frames" \
@@ -87,6 +88,7 @@ while true; do
       case "$tool" in
         "PNG Compressor") script="$TOOLSET_DIR/png_compressor.sh" ;;
         "Audio Converter") script="$TOOLSET_DIR/audio_converter.sh" ;;
+        "YaBridge Manager") script="$TOOLSET_DIR/yabridge-manager.sh" ;;
         "Image Converter") script="$TOOLSET_DIR/image_converter.sh" ;;
         "Video Converter") script="$TOOLSET_DIR/video_converter.sh" ;;
         "Video To Frames") script="$TOOLSET_DIR/video_to_frames.sh" ;;
