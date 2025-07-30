@@ -85,7 +85,8 @@ while true; do
         "Video To Frames" \
         "Frames To Video" \
         "Reverse Image Search" \
-        "Upload Image Online")
+        "Upload Image Online" \
+        "Download from YouTube")
       case "$tool" in
         "PNG Compressor") script="$TOOLSET_DIR/png_compressor.sh" ;;
         "Audio Converter") script="$TOOLSET_DIR/audio_converter.sh" ;;
@@ -96,6 +97,7 @@ while true; do
         "Frames To Video") script="$TOOLSET_DIR/frames_to_video.sh" ;;
         "Reverse Image Search") script="$TOOLSET_DIR/reverse_image_research.sh" ;;
         "Upload Image Online") script="$TOOLSET_DIR/image_uploader.sh" ;;
+        "Download from YouTube") script="$TOOLSET_DIR/youtube_downloader.sh" ;;
       esac
       ;;
 

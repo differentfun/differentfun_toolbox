@@ -29,9 +29,10 @@ echo "    - cdrtools"
 echo "    - zip"
 echo "    - coreutils"
 echo "    - gnupg"
+echo "    - yt-dlp"
 echo ""
 
-sudo pacman -S --noconfirm ffmpeg pngquant p7zip cdrtools zip coreutils gnupg
+sudo pacman -S --noconfirm ffmpeg pngquant p7zip cdrtools zip coreutils gnupg yt-dlp
 
 # Verify
 echo -e "\n🔎 Verifying installed tools..."

@@ -9,7 +9,7 @@ echo -e "\n=== [ DifferentFun Toolbox Requirements Installer - Debian ] ==="
 
 # Check for zenity itself
 if ! command -v zenity >/dev/null 2>&1; then
-  echo "❌ Zenity is not installed. Install it with: sudo apt install zenity"
+  echo "❌ Zenity is not installed. Install it with: sudo apt install zenity yt-dlp"
   exit 1
 fi
 
@@ -30,9 +30,10 @@ echo "    - genisoimage"
 echo "    - zip"
 echo "    - coreutils"
 echo "    - gnupg"
+echo "    - yt-dlp"
 echo ""
 
-sudo apt install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gnupg 
+sudo apt install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gnupg yt-dlp 
 
 # Verify installation
 echo -e "\n🔎 Verifying installed tools..."

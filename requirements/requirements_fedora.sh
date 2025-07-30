@@ -30,9 +30,10 @@ echo "    - genisoimage"
 echo "    - zip"
 echo "    - coreutils"
 echo "    - gnupg2"
+echo "    - yt-dlp"
 echo ""
 
-sudo dnf install -y ffmpeg pngquant p7zip p7zip-plugins genisoimage zip coreutils gnupg2
+sudo dnf install -y ffmpeg pngquant p7zip p7zip-plugins genisoimage zip coreutils gnupg2 yt-dlp
 
 # Verify
 echo -e "\n🔎 Verifying installed tools..."

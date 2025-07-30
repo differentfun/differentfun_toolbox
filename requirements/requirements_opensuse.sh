@@ -29,9 +29,10 @@ echo "    - genisoimage"
 echo "    - zip"
 echo "    - coreutils"
 echo "    - gnupg"
+echo "    - yt-dlp"
 echo ""
 
-sudo zypper install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gpg2 
+sudo zypper install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gpg2 yt-dlp
 
 # Verify
 echo -e "\n🔎 Verifying installed tools..."
