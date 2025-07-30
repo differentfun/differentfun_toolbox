@@ -17,6 +17,7 @@ Supports audio/video/image conversion, ISO creation/extraction, and more — all
 - **Video → Frames** extractor
 - **Frames → Video** builder
 - **Reverse Image Search** on the web
+- **Fast Image Upload** on the web, returns url
 
 ### 💽 ISO Tools
 
