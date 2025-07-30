@@ -45,33 +45,6 @@ function fix_low_memory() {
     zenity --info --text="System audio limits updated.\n\nYou must **log out or reboot** to apply the changes."
 }
 
-function reinstall_wine_staging() {
-    zenity --question --text="This will remove all Wine packages and reinstall Wine Staging from WineHQ.\nDo you want to continue?"
-    if [ $? -ne 0 ]; then return; fi
-
-    echo "Removing existing Wine installations..."
-    sudo apt remove --purge wine* libwine* -y
-    sudo apt autoremove --purge -y
-
-    echo "Adding i386 architecture..."
-    sudo dpkg --add-architecture i386
-
-    echo "Adding WineHQ GPG key..."
-    sudo mkdir -pm755 /etc/apt/keyrings
-    sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-
-    echo "Adding WineHQ repo for Debian Bookworm..."
-    sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/bookworm/winehq-bookworm.sources
-
-    echo "Updating APT..."
-    sudo apt update
-
-    echo "Installing Wine Staging..."
-    sudo apt install --install-recommends winehq-staging -y
-
-    zenity --info --text="Wine Staging installed successfully.\n\nYou can now run Windows applications using wine."
-}
-
 function add_vst_dir() {
     DIR=$(zenity --file-selection --directory --title="Select a VST2 or VST3 directory to add")
     if [ -n "$DIR" ]; then
@@ -121,7 +94,6 @@ function main_menu() {
             "Clean all VSTs" \
             "Sync VSTs" \
             "Fix LowMemory" \
-            "Reinstall Wine (Staging from WineHQ)" \
             "Exit")
 
         case "$CHOICE" in
@@ -131,7 +103,6 @@ function main_menu() {
             "Clean all VSTs") clean_vsts ;;
             "Sync VSTs") sync_vsts ;;
             "Fix LowMemory") fix_low_memory ;;
-            "Reinstall Wine (Staging from WineHQ)") reinstall_wine_staging ;;
             "Exit") break ;;
             *) break ;;
         esac
