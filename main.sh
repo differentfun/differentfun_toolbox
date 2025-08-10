@@ -86,7 +86,8 @@ while true; do
         "Frames To Video" \
         "Reverse Image Search" \
         "Upload Image Online" \
-        "Download from YouTube")
+        "Download from YouTube" \
+        "Recursive File Date Changer")
       case "$tool" in
         "PNG Compressor") script="$TOOLSET_DIR/png_compressor.sh" ;;
         "Audio Converter") script="$TOOLSET_DIR/audio_converter.sh" ;;
@@ -98,6 +99,7 @@ while true; do
         "Reverse Image Search") script="$TOOLSET_DIR/reverse_image_research.sh" ;;
         "Upload Image Online") script="$TOOLSET_DIR/image_uploader.sh" ;;
         "Download from YouTube") script="$TOOLSET_DIR/youtube_downloader.sh" ;;
+        "Recursive File Date Changer") script="$TOOLSET_DIR/recursive_date_changer.sh" ;;
       esac
       ;;
 
