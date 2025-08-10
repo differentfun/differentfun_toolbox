@@ -18,6 +18,8 @@ Supports audio/video/image conversion, ISO creation/extraction, and more — all
 - **Frames → Video** builder
 - **Reverse Image Search** on the web
 - **Fast Image Upload** on the web, returns url
+- **Youtube Downloader** with format options
+- **Recursive File Date Changer** assess or modified time
 
 ### 💽 ISO Tools
 
