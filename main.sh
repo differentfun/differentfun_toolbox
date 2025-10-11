@@ -1,10 +1,18 @@
 #!/bin/bash
 
 # Check if Zenity is installed
-if ! command -v zenity >/dev/null; then
+ZENITY_BIN=$(command -v zenity)
+if [[ -z "$ZENITY_BIN" ]]; then
   echo "Zenity is required but not installed. Please install it first."
   exit 1
 fi
+
+# Override zenity to drop noisy GTK warnings while keeping real errors visible
+zenity() {
+  "$ZENITY_BIN" "$@" 2> >(grep -vi 'gtk' >&2)
+  return $?
+}
+export -f zenity
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLSET_DIR="$ROOT_DIR/toolset"
