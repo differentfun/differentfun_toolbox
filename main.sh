@@ -6,10 +6,11 @@ if [[ -z "$ZENITY_BIN" ]]; then
   echo "Zenity is required but not installed. Please install it first."
   exit 1
 fi
+export ZENITY_BIN
 
 # Override zenity to drop noisy GTK warnings while keeping real errors visible
 zenity() {
-  "$ZENITY_BIN" "$@" 2> >(grep -vi 'gtk' >&2)
+  "$ZENITY_BIN" "$@" 2> >(awk 'BEGIN { IGNORECASE = 1 } { gsub(/\r/, ""); if (/gtk/) next; if (/^[[:space:]]*$/) next; print }' >&2)
   return $?
 }
 export -f zenity
