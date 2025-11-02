@@ -34,31 +34,46 @@ fi
 chmod +x "$TOOLSET_DIR"/*.sh 2>/dev/null
 chmod +x "$REQ_DIR"/*.sh 2>/dev/null
 
-# Prompt to install requirements
-if zenity --question --title="Install Requirements?" --text="Do you want to install requirements before launching the toolbox?"; then
-  req_selection=$(zenity --list \
-    --title="Select Your Distribution" \
-    --width=400 --height=250 \
-    --column="Installer" \
-    "Install Requirements for Debian" \
-    "Install Requirements for Fedora" \
-    "Install Requirements for Arch" \
-    "Install Requirements for openSUSE")
+# Prompt to install requirements only if dependencies are missing
+REQUIRED_COMMANDS=(ffmpeg pngquant 7z mkisofs zip gpg yt-dlp)
+MISSING_DEPS=()
+for dep in "${REQUIRED_COMMANDS[@]}"; do
+  if ! command -v "$dep" >/dev/null 2>&1; then
+    MISSING_DEPS+=("$dep")
+  fi
+done
 
-  [[ -z "$req_selection" ]] && exit 0
+if (( ${#MISSING_DEPS[@]} > 0 )); then
+  printf -v missing_list ' - %s\n' "${MISSING_DEPS[@]}"
+  missing_list=${missing_list%$'\n'}
 
-  case "$req_selection" in
-    "Install Requirements for Debian") script="$REQ_DIR/requirements_debian.sh" ;;
-    "Install Requirements for Fedora") script="$REQ_DIR/requirements_fedora.sh" ;;
-    "Install Requirements for Arch") script="$REQ_DIR/requirements_arch.sh" ;;
-    "Install Requirements for openSUSE") script="$REQ_DIR/requirements_opensuse.sh" ;;
-    *) zenity --error --text="Invalid selection."; exit 1 ;;
-  esac
+  if zenity --question \
+    --title="Install Requirements?" \
+    --text="Some toolbox dependencies are missing:\n\n$missing_list\n\nInstall requirements before launching the toolbox?"; then
+    req_selection=$(zenity --list \
+      --title="Select Your Distribution" \
+      --width=400 --height=250 \
+      --column="Installer" \
+      "Install Requirements for Debian" \
+      "Install Requirements for Fedora" \
+      "Install Requirements for Arch" \
+      "Install Requirements for openSUSE")
 
-  if [[ -x "$script" ]]; then
-    "$script"
-  else
-    zenity --error --text="Installer script not found or not executable:\n$script"
+    [[ -z "$req_selection" ]] && exit 0
+
+    case "$req_selection" in
+      "Install Requirements for Debian") script="$REQ_DIR/requirements_debian.sh" ;;
+      "Install Requirements for Fedora") script="$REQ_DIR/requirements_fedora.sh" ;;
+      "Install Requirements for Arch") script="$REQ_DIR/requirements_arch.sh" ;;
+      "Install Requirements for openSUSE") script="$REQ_DIR/requirements_opensuse.sh" ;;
+      *) zenity --error --text="Invalid selection."; exit 1 ;;
+    esac
+
+    if [[ -x "$script" ]]; then
+      "$script"
+    else
+      zenity --error --text="Installer script not found or not executable:\n$script"
+    fi
   fi
 fi
 
@@ -66,7 +81,7 @@ fi
 while true; do
   category=$(zenity --list \
     --title="DifferentFun Multimedia Toolbox (Zenity GUI)" \
-    --width=500 --height=300 \
+    --width=500 --height=600 \
     --column="Category" \
     "Audio / Video / Images" \
     "ISO Tools" \
@@ -84,7 +99,7 @@ while true; do
     "Audio / Video / Images")
       tool=$(zenity --list \
         --title="$category" \
-        --width=400 --height=400 \
+        --width=400 --height=600 \
         --column="Tool" \
         "PNG Compressor" \
         "Audio Converter" \
