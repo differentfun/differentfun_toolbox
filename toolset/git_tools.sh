@@ -214,6 +214,79 @@ fix_remote_url() {
     fi
 }
 
+revert_to_commit() {
+    DIR=$(zenity --file-selection --directory --title="Select Git repository to revert")
+    [ -z "$DIR" ] && return
+
+    if [ ! -d "$DIR/.git" ]; then
+        zenity --error --title="git_tools – by DifferentFun" --text="Not a Git repository." --width=300
+        return
+    fi
+
+    cd "$DIR"
+
+    if ! git rev-parse HEAD >/dev/null 2>&1; then
+        zenity --error --title="git_tools – by DifferentFun" --text="No commits found in this repository." --width=320
+        return
+    fi
+
+    mapfile -t HASHES < <(git log --pretty=format:"%h" -n 50)
+    mapfile -t MESSAGES < <(git log --pretty=format:"%s (%cr)" -n 50)
+
+    if [ ${#HASHES[@]} -eq 0 ]; then
+        zenity --info --title="git_tools – by DifferentFun" --text="No commits available to select." --width=320
+        return
+    fi
+
+    LIST_ITEMS=()
+    for i in "${!HASHES[@]}"; do
+        LIST_ITEMS+=("${HASHES[$i]}")
+        LIST_ITEMS+=("${MESSAGES[$i]}")
+    done
+
+    SELECTED_HASH=$(zenity --list \
+        --title="Select commit to revert to" \
+        --width=800 --height=400 \
+        --column="Hash" --column="Message" \
+        "${LIST_ITEMS[@]}")
+
+    [ -z "$SELECTED_HASH" ] && return
+
+    zenity --question --title="Confirm Revert" \
+        --text="This will stash current changes (if any) and reset the repository to commit:\n$SELECTED_HASH\nContinue?" --width=420
+
+    if [ $? -ne 0 ]; then
+        return
+    fi
+
+    STASH_NAME=""
+    STASH_INFO="No local changes were stashed."
+    if [ -n "$(git status --porcelain)" ]; then
+        STASH_NAME="git_tools auto stash $(date +%Y-%m-%d_%H-%M-%S)"
+        if git stash push -u -m "$STASH_NAME" >/dev/null 2>&1; then
+            STASH_INFO="Local changes saved to stash '$STASH_NAME'."
+        else
+            zenity --error --title="git_tools – by DifferentFun" --text="Failed to stash current changes. Operation aborted." --width=360
+            return
+        fi
+    fi
+
+    if ! RESET_OUTPUT=$(git reset --hard "$SELECTED_HASH" 2>&1); then
+        MESSAGE="Reset to commit failed:\n$RESET_OUTPUT"
+        if [ -n "$STASH_NAME" ]; then
+            MESSAGE="$MESSAGE\n\nLocal changes remain stashed under '$STASH_NAME'."
+        fi
+        zenity --error --title="git_tools – by DifferentFun" --text="$MESSAGE" --width=420
+        return
+    fi
+
+    echo "$RESET_OUTPUT"
+
+    SUMMARY="Repository reset to commit $SELECTED_HASH."
+    SUMMARY="$SUMMARY\n$STASH_INFO"
+    zenity --info --title="git_tools – by DifferentFun" --text="$SUMMARY" --width=420
+}
+
 
 # Main menu loop
 while true; do
@@ -227,6 +300,7 @@ while true; do
 		"Make a Commit" \
 		"Push to Remote" \
 		"Force Push to Remote" \
+		"Revert to Commit" \
 		"Clean Git Information from Folder" \
 		"Enable Permanent Credential Save" \
 		"Fix Remote URL with Token" \
@@ -241,8 +315,9 @@ while true; do
         "Initialize Git Repository") init_repo ;;
         "Make a Commit") make_commit ;;
         "Push to Remote") push_repo ;;
-        "Clean Git Information from Folder") clean_git_info ;;
         "Force Push to Remote") force_push_repo ;;
+        "Revert to Commit") revert_to_commit ;;
+        "Clean Git Information from Folder") clean_git_info ;;
         "Enable Permanent Credential Save") enable_credential_save ;;
         "Fix Remote URL with Token") fix_remote_url ;;
         "Exit") break ;;
