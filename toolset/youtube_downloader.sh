@@ -11,6 +11,20 @@ if ! command -v ffmpeg >/dev/null 2>&1; then
     exit 1
 fi
 
+# Reuse consistent yt-dlp options (mainly to avoid hanging forever).
+YT_DLP_BASE_OPTS=(--socket-timeout 15)
+
+sanitize_for_filename() {
+    local input="$1"
+    local cleaned
+    cleaned=$(echo "$input" | sed 's/[^a-zA-Z0-9._ -]/_/g' | tr ' ' '_')
+    cleaned=${cleaned:0:60}
+    if [[ -z "$cleaned" ]]; then
+        cleaned="download"
+    fi
+    echo "$cleaned"
+}
+
 # === STEP 1: Ask for YouTube URL ===
 VIDEO_URL=$(zenity --entry --title="YouTube Downloader" \
   --text="Enter the YouTube video URL:" \
@@ -21,45 +35,79 @@ if [[ -z "$VIDEO_URL" ]]; then
     exit 1
 fi
 
-# === STEP 2: Retrieve video title with progress ===
-# Create a temp file for the title
-TITLE_TMP=$(mktemp)
+# === STEP 2: Retrieve metadata with progress ===
+INFO_TMP=$(mktemp)
 
-# Start fetching the title in background
-(yt-dlp --get-title "$VIDEO_URL" > "$TITLE_TMP" 2>/dev/null) &
+(yt-dlp "${YT_DLP_BASE_OPTS[@]}" --skip-download --playlist-items 1 \
+    --print "%(title)s" \
+    --print "%(playlist_title)s" \
+    --print "%(playlist_count)s" \
+    "$VIDEO_URL" > "$INFO_TMP" 2>/dev/null) &
+INFO_PID=$!
 
 # Show a pulsating progress bar while it runs
 (
   echo "10"
-  echo "# Retrieving title..."
-  while kill -0 $! 2>/dev/null; do
+  echo "# Retrieving info..."
+  while kill -0 $INFO_PID 2>/dev/null; do
     sleep 0.2
     echo "50"
   done
   echo "100"
 ) | zenity --progress \
   --title="Please wait" \
-  --text="Retrieving title..." \
+  --text="Retrieving video / playlist info..." \
   --pulsate \
   --no-cancel \
   --auto-close \
   --width=400
 
-# Read the title
-RAW_TITLE=$(cat "$TITLE_TMP")
-rm "$TITLE_TMP"
+wait "$INFO_PID"
 
-if [[ -z "$RAW_TITLE" ]]; then
+if [[ ! -s "$INFO_TMP" ]]; then
+    rm "$INFO_TMP"
+    zenity --error --text="Failed to retrieve video information. Check the URL."
+    exit 1
+fi
+
+mapfile -t YT_INFO < "$INFO_TMP"
+rm "$INFO_TMP"
+
+RAW_TITLE="${YT_INFO[0]}"
+PLAYLIST_TITLE="${YT_INFO[1]}"
+PLAYLIST_COUNT="${YT_INFO[2]}"
+
+if [[ -z "$RAW_TITLE" || "$RAW_TITLE" == "NA" ]]; then
     zenity --error --text="Failed to retrieve video title. Check the URL."
     exit 1
 fi
 
+if [[ "$PLAYLIST_TITLE" == "NA" ]]; then
+    PLAYLIST_TITLE=""
+fi
 
-zenity --info --title="Video Title Found" --text="You are downloading:\n\n$RAW_TITLE"
+PLAYLIST_COUNT_NUM=0
+if [[ "$PLAYLIST_COUNT" =~ ^[0-9]+$ ]]; then
+    PLAYLIST_COUNT_NUM=$PLAYLIST_COUNT
+fi
+
+if (( PLAYLIST_COUNT_NUM > 1 )); then
+    DISPLAY_TITLE=${PLAYLIST_TITLE:-$RAW_TITLE}
+    zenity --info --title="Playlist Detected" --text="Detected playlist:\n\n$DISPLAY_TITLE\n\nVideos found: $PLAYLIST_COUNT_NUM\n\nThe entire playlist will be downloaded."
+    IS_PLAYLIST=1
+else
+    DISPLAY_TITLE=$RAW_TITLE
+    zenity --info --title="Video Title Found" --text="You are downloading:\n\n$DISPLAY_TITLE"
+    IS_PLAYLIST=0
+fi
 
 # === STEP 3: Clean the title for filename ===
-CLEAN_TITLE=$(echo "$RAW_TITLE" | sed 's/[^a-zA-Z0-9._ -]/_/g' | tr ' ' '_')
-CLEAN_TITLE=${CLEAN_TITLE:0:60}
+CLEAN_VIDEO_TITLE=$(sanitize_for_filename "$RAW_TITLE")
+if [[ $IS_PLAYLIST -eq 1 && -n "$DISPLAY_TITLE" ]]; then
+    CLEAN_PLAYLIST_TITLE=$(sanitize_for_filename "$DISPLAY_TITLE")
+else
+    CLEAN_PLAYLIST_TITLE="$CLEAN_VIDEO_TITLE"
+fi
 
 # === STEP 4: Choose download type ===
 TYPE=$(zenity --list --radiolist \
@@ -107,7 +155,12 @@ if [[ -z "$DEST_DIR" ]]; then
 fi
 
 # === STEP 7: Build command ===
-OUTPUT_PATH="$DEST_DIR/$CLEAN_TITLE"
+OUTPUT_PATH="$DEST_DIR/$CLEAN_VIDEO_TITLE"
+PLAYLIST_OUTPUT_DIR="$DEST_DIR/$CLEAN_PLAYLIST_TITLE"
+YT_PLAYLIST_ARGS=()
+if [[ $IS_PLAYLIST -eq 1 ]]; then
+    YT_PLAYLIST_ARGS=(--yes-playlist)
+fi
 
 if [[ "$TYPE" == "Video (MP4)" ]]; then
     case $QUALITY in
@@ -119,12 +172,18 @@ if [[ "$TYPE" == "Video (MP4)" ]]; then
         *) FORMAT="bestvideo+bestaudio" ;;
     esac
 
-    FINAL_OUTPUT="$OUTPUT_PATH.mp4"
+    if [[ $IS_PLAYLIST -eq 1 ]]; then
+        FINAL_OUTPUT="$PLAYLIST_OUTPUT_DIR"
+        OUTPUT_TEMPLATE="$PLAYLIST_OUTPUT_DIR/%(playlist_index)03d - %(title).60s.%(ext)s"
+    else
+        FINAL_OUTPUT="$OUTPUT_PATH.mp4"
+        OUTPUT_TEMPLATE="$FINAL_OUTPUT"
+    fi
 
-    CMD=(yt-dlp -f "$FORMAT" \
+    CMD=(yt-dlp "${YT_DLP_BASE_OPTS[@]}" -f "$FORMAT" \
         --recode-video mp4 \
-        -o "$FINAL_OUTPUT" \
-        "$VIDEO_URL")
+        -o "$OUTPUT_TEMPLATE")
+    CMD+=("${YT_PLAYLIST_ARGS[@]}" "$VIDEO_URL")
 
 else
     case $QUALITY in
@@ -135,11 +194,17 @@ else
         *) AUDIO_OPTS=(--audio-quality 5) ;;
     esac
 
-    FINAL_OUTPUT="$OUTPUT_PATH.mp3"
+    if [[ $IS_PLAYLIST -eq 1 ]]; then
+        FINAL_OUTPUT="$PLAYLIST_OUTPUT_DIR"
+        OUTPUT_TEMPLATE="$PLAYLIST_OUTPUT_DIR/%(playlist_index)03d - %(title).60s.%(ext)s"
+    else
+        FINAL_OUTPUT="$OUTPUT_PATH.mp3"
+        OUTPUT_TEMPLATE="$FINAL_OUTPUT"
+    fi
 
-    CMD=(yt-dlp -x --audio-format mp3 "${AUDIO_OPTS[@]}" \
-        -o "$FINAL_OUTPUT" \
-        "$VIDEO_URL")
+    CMD=(yt-dlp "${YT_DLP_BASE_OPTS[@]}" -x --audio-format mp3 "${AUDIO_OPTS[@]}" \
+        -o "$OUTPUT_TEMPLATE")
+    CMD+=("${YT_PLAYLIST_ARGS[@]}" "$VIDEO_URL")
 fi
 
 # === STEP 8: Download with progress ===
@@ -158,4 +223,8 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # === STEP 9: Notify complete ===
-zenity --info --title="Download Complete" --text="File downloaded to:\n$FINAL_OUTPUT"
+if [[ $IS_PLAYLIST -eq 1 ]]; then
+    zenity --info --title="Download Complete" --text="Playlist downloaded to:\n$FINAL_OUTPUT"
+else
+    zenity --info --title="Download Complete" --text="File downloaded to:\n$FINAL_OUTPUT"
+fi
