@@ -1,5 +1,14 @@
 #!/bin/bash
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SUDO_HELPER="$ROOT_DIR/requirements/sudo_utils.sh"
+# shellcheck source=/dev/null
+if [[ -f "$SUDO_HELPER" ]]; then
+    source "$SUDO_HELPER"
+else
+    run_sudo() { sudo "$@"; }
+fi
+
 YABRIDGE_DIR="$HOME/.local/share/yabridge"
 YABRIDGE_BIN="$YABRIDGE_DIR/yabridgectl"
 RELEASE_URL="https://github.com/robbert-vdh/yabridge/releases/download/5.1.1/yabridge-5.1.1.tar.gz"
@@ -30,16 +39,16 @@ function fix_low_memory() {
     if [ $? -ne 0 ]; then return; fi
 
     echo "Adding user to audio group..."
-    sudo usermod -aG audio "$USER"
+    run_sudo usermod -aG audio "$USER"
 
     echo "Creating /etc/security/limits.d/audio.conf..."
     echo -e "@audio   -  rtprio     95\n@audio   -  memlock    unlimited\n@audio   -  nice       -19" | \
-        sudo tee /etc/security/limits.d/audio.conf >/dev/null
+        run_sudo tee /etc/security/limits.d/audio.conf >/dev/null
 
     echo "Ensuring pam_limits is loaded..."
     if ! grep -q "pam_limits.so" /etc/pam.d/common-session; then
         echo "Adding 'session required pam_limits.so' to /etc/pam.d/common-session"
-        echo "session required pam_limits.so" | sudo tee -a /etc/pam.d/common-session >/dev/null
+        echo "session required pam_limits.so" | run_sudo tee -a /etc/pam.d/common-session >/dev/null
     fi
 
     zenity --info --text="System audio limits updated.\n\nYou must **log out or reboot** to apply the changes."

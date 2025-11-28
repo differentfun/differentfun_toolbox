@@ -1,9 +1,14 @@
 #!/bin/bash
 
+# Load sudo helper (GUI-friendly)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/sudo_utils.sh"
+
 # Show initial GUI notice
 zenity --info \
-  --title="Running Installer in Terminal" \
-  --text="📢 This installer will run in the terminal.\n\nPlease check the terminal output for progress and possible errors."
+  --title="Installing Requirements" \
+  --text="📢 The installer may ask for your password.\n\nLeave this window open until it finishes."
 
 echo -e "\n=== [ DifferentFun Toolbox Requirements Installer - Debian ] ==="
 
@@ -15,11 +20,11 @@ fi
 
 # Ask for sudo once
 echo -e "\n🔐 Asking for sudo access..."
-sudo true || exit 1
+run_sudo true || exit 1
 
 # Update package list
 echo -e "\n🔄 Updating package list..."
-sudo apt update -y
+run_sudo apt update -y
 
 # Install required packages
 echo -e "\n📦 Installing packages:"
@@ -33,7 +38,7 @@ echo "    - gnupg"
 echo "    - yt-dlp"
 echo ""
 
-sudo apt install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gnupg yt-dlp 
+run_sudo apt install -y ffmpeg pngquant p7zip-full genisoimage zip coreutils gnupg yt-dlp 
 
 # Verify installation
 echo -e "\n🔎 Verifying installed tools..."

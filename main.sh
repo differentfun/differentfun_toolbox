@@ -19,6 +19,15 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLSET_DIR="$ROOT_DIR/toolset"
 REQ_DIR="$ROOT_DIR/requirements"
 
+# Make sure user-level binaries are reachable even when launched from a desktop entry
+for EXTRA_PATH in "$HOME/.local/bin" /usr/local/bin /snap/bin; do
+  case ":$PATH:" in
+    *":$EXTRA_PATH:"*) ;;
+    *) PATH="$EXTRA_PATH:$PATH" ;;
+  esac
+done
+export PATH
+
 # Check folders
 if [[ ! -d "$TOOLSET_DIR" ]]; then
   zenity --error --title="Toolset not found" --text="The folder 'toolset' was not found in:\n$ROOT_DIR"

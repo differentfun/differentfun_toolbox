@@ -1,9 +1,14 @@
 #!/bin/bash
 
+# Load sudo helper (GUI-friendly)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/sudo_utils.sh"
+
 # Show initial GUI notice
 zenity --info \
-  --title="Running Installer in Terminal" \
-  --text="📢 This installer will run in the terminal.\n\nPlease check the terminal output for progress and possible errors."
+  --title="Installing Requirements" \
+  --text="📢 The installer may ask for your password.\n\nLeave this window open until it finishes."
 
 echo -e "\n=== [ DifferentFun Toolbox Requirements Installer - Fedora ] ==="
 
@@ -15,11 +20,11 @@ fi
 
 # Ask for sudo
 echo -e "\n🔐 Asking for sudo access..."
-sudo true || exit 1
+run_sudo true || exit 1
 
 # Update and install
 echo -e "\n🔄 Updating package list..."
-sudo dnf -y update
+run_sudo dnf -y update
 
 echo -e "\n📦 Installing packages:"
 echo "    - ffmpeg"
@@ -33,7 +38,7 @@ echo "    - gnupg2"
 echo "    - yt-dlp"
 echo ""
 
-sudo dnf install -y ffmpeg pngquant p7zip p7zip-plugins genisoimage zip coreutils gnupg2 yt-dlp
+run_sudo dnf install -y ffmpeg pngquant p7zip p7zip-plugins genisoimage zip coreutils gnupg2 yt-dlp
 
 # Verify
 echo -e "\n🔎 Verifying installed tools..."
