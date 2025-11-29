@@ -109,7 +109,24 @@ else
     CLEAN_PLAYLIST_TITLE="$CLEAN_VIDEO_TITLE"
 fi
 
-# === STEP 4: Choose download type ===
+# === STEP 4: Let the user override the filename (single video only) ===
+if [[ $IS_PLAYLIST -eq 0 ]]; then
+    CUSTOM_NAME=$(zenity --entry --title="Nome file" \
+      --text="Inserisci un nome personalizzato (senza estensione):" \
+      --entry-text="$CLEAN_VIDEO_TITLE" \
+      --width=600)
+
+    if [[ $? -ne 0 ]]; then
+        zenity --error --text="Nessun nome inserito. Uscita."
+        exit 1
+    fi
+
+    if [[ -n "$CUSTOM_NAME" ]]; then
+        CLEAN_VIDEO_TITLE=$(sanitize_for_filename "$CUSTOM_NAME")
+    fi
+fi
+
+# === STEP 5: Choose download type ===
 TYPE=$(zenity --list --radiolist \
   --title="Download Type" \
   --text="Select what you want to download:" \
@@ -122,7 +139,7 @@ if [[ -z "$TYPE" ]]; then
     exit 1
 fi
 
-# === STEP 5: Choose quality ===
+# === STEP 6: Choose quality ===
 if [[ "$TYPE" == "Video (MP4)" ]]; then
     QUALITY=$(zenity --list --radiolist \
       --title="Video Quality" \
@@ -147,14 +164,14 @@ else
     fi
 fi
 
-# === STEP 6: Choose output folder ===
+# === STEP 7: Choose output folder ===
 DEST_DIR=$(zenity --file-selection --directory --title="Choose destination folder")
 if [[ -z "$DEST_DIR" ]]; then
     zenity --error --text="No folder selected. Exiting."
     exit 1
 fi
 
-# === STEP 7: Build command ===
+# === STEP 8: Build command ===
 OUTPUT_PATH="$DEST_DIR/$CLEAN_VIDEO_TITLE"
 PLAYLIST_OUTPUT_DIR="$DEST_DIR/$CLEAN_PLAYLIST_TITLE"
 YT_PLAYLIST_ARGS=()
@@ -207,7 +224,7 @@ else
     CMD+=("${YT_PLAYLIST_ARGS[@]}" "$VIDEO_URL")
 fi
 
-# === STEP 8: Download with progress ===
+# === STEP 9: Download with progress ===
 (
     "${CMD[@]}"
 ) | zenity --progress \
@@ -222,7 +239,7 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-# === STEP 9: Notify complete ===
+# === STEP 10: Notify complete ===
 if [[ $IS_PLAYLIST -eq 1 ]]; then
     zenity --info --title="Download Complete" --text="Playlist downloaded to:\n$FINAL_OUTPUT"
 else
